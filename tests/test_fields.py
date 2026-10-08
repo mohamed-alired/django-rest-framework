@@ -1677,7 +1677,10 @@ class TestNaiveDateTimeField(FieldValues, TestCase):
         datetime.datetime(2001, 1, 1, 13, 00, tzinfo=utc): datetime.datetime(2001, 1, 1, 13, 00),
         '2001-01-01 13:00': datetime.datetime(2001, 1, 1, 13, 00),
     }
-    invalid_inputs = {}
+    invalid_inputs = {
+        '0001-01-01T00:00:00+01:00': ['Datetime value out of range.'],
+        '9999-12-31T23:59:59-01:00': ['Datetime value out of range.'],
+    }
     outputs = {
         datetime.datetime(2001, 1, 1, 13, 00): '2001-01-01T13:00:00',
         datetime.datetime(2001, 1, 1, 13, 00, tzinfo=utc): '2001-01-01T13:00:00',

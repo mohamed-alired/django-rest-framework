@@ -1185,7 +1185,10 @@ class DateTimeField(Field):
                 self.fail('make_aware', timezone=field_timezone)
             return dt
         elif (field_timezone is None) and timezone.is_aware(value):
-            return timezone.make_naive(value, datetime.timezone.utc)
+            try:
+                return timezone.make_naive(value, datetime.timezone.utc)
+            except OverflowError:
+                self.fail('overflow')
         return value
 
     def default_timezone(self):
