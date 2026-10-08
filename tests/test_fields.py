@@ -1431,6 +1431,25 @@ class TestNoMaxDigitsDecimalField(FieldValues):
     outputs = {}
 
 
+class TestNoMaxDigitsLargeDecimalField(FieldValues):
+    """
+    Without max_digits, values longer than the default decimal context
+    precision (28 digits) are quantized, not rejected with a server error.
+    """
+    field = serializers.DecimalField(decimal_places=2, max_digits=None)
+    valid_inputs = {
+        '1' * 27: Decimal('1' * 27 + '.00'),
+        '1e30': Decimal('1' + '0' * 30 + '.00'),
+        10 ** 30: Decimal('1' + '0' * 30 + '.00'),
+    }
+    invalid_inputs = {
+        '1e1000': ['String value too large.'],
+    }
+    outputs = {
+        Decimal('1' * 30): '1' * 30 + '.00',
+    }
+
+
 class TestNoStringCoercionDecimalField(FieldValues):
     """
     Output values for `DecimalField` with `coerce_to_string=False`.

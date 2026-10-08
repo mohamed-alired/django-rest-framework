@@ -1067,7 +1067,12 @@ class DecimalField(Field):
         if value in (decimal.Decimal('Inf'), decimal.Decimal('-Inf')):
             self.fail('invalid')
 
-        return self.quantize(self.validate_precision(value))
+        try:
+            return self.quantize(self.validate_precision(value))
+        except decimal.InvalidOperation:
+            # Only possible without max_digits: the value needs more digits
+            # than quantize() allows.
+            self.fail('max_string_length')
 
     def validate_precision(self, value):
         """
@@ -1138,6 +1143,12 @@ class DecimalField(Field):
         context = decimal.getcontext().copy()
         if self.max_digits is not None:
             context.prec = self.max_digits
+        else:
+            # No digit limit: make room for the quantized value, which may need
+            # more digits than the default context precision (28), within the
+            # same bound as the input string.
+            digits = max(value.adjusted(), 0) + 1 + self.decimal_places
+            context.prec = max(context.prec, min(digits, self.MAX_STRING_LENGTH))
         return value.quantize(
             decimal.Decimal('.1') ** self.decimal_places,
             rounding=self.rounding,
