@@ -1206,9 +1206,9 @@ class DateTimeField(Field):
                     parsed = parse_datetime(value)
                     if parsed is not None:
                         return self.enforce_timezone(parsed)
-
-                parsed = self.datetime_parser(value, input_format)
-                return self.enforce_timezone(parsed)
+                else:
+                    parsed = self.datetime_parser(value, input_format)
+                    return self.enforce_timezone(parsed)
 
         humanized_format = humanize_datetime.datetime_formats(input_formats)
         self.fail('invalid', format=humanized_format)
