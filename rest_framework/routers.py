@@ -293,7 +293,7 @@ class SimpleRouter(BaseRouter):
                 #   warnings and (B) generate URLS that will require using '//'.
                 if not prefix:
                     if self._url_conf is path:
-                        if regex[0] == '/':
+                        if regex.startswith('/'):
                             regex = regex[1:]
                     elif regex[:2] == '^/':
                         regex = '^' + regex[2:]

@@ -481,6 +481,20 @@ class TestEmptyPrefix(URLPatternsTestCase, TestCase):
         assert json.loads(response.content.decode()) == {'uuid': '111', 'text': 'First'}
 
 
+class TestEmptyPrefixWithoutTrailingSlash(TestCase):
+    def test_path_router(self):
+        # With no prefix and no trailing slash the list route is the empty
+        # string, which must not break the leading-slash handling.
+        router = SimpleRouter(trailing_slash=False, use_regex_path=False)
+        router.register('', EmptyPrefixViewSet, basename='empty_prefix')
+        assert [str(url.pattern) for url in router.urls] == ['', '<str:pk>']
+
+    def test_regex_router(self):
+        router = SimpleRouter(trailing_slash=False)
+        router.register('', EmptyPrefixViewSet, basename='empty_prefix')
+        assert [str(url.pattern) for url in router.urls] == ['^$', '^(?P<pk>[^/.]+)$']
+
+
 class TestRegexUrlPath(URLPatternsTestCase, TestCase):
     urlpatterns = [
         path('regex/', include(regex_url_path_router.urls)),
